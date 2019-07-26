@@ -1,30 +1,24 @@
 
-let currentParagraph;
+let countryname;
 let maxParagraphCount = 3;
 let maxPreambleCount = 2;
-let countryname;
 let countryTag;
 let addButton;
-let isRunning;
-let canceled;
 
-let charRNNPreambles;
-let charRNNArticles;
+let rnns = [];
+let preamblesGenerator;
+let articlesGenerator;
 
 function setup() {
 
 	noCanvas();
 
+	preamblesGenerator = new RNNGenerator('models/preambles',"#preambles",2,0.95 );
+	articlesGenerator =new RNNGenerator('models/combined',"#articles",3,0.88 );
 
-	charRNNPreambles = ml5.charRNN('models/preambles', () => {
-		console.log("model ready");
-	});
-
-	charRNNArticles = ml5.charRNN('models/combined', () => {
-		console.log("model ready");
-	});
-
-
+	rnns.push(preamblesGenerator);
+	rnns.push(articlesGenerator);
+	
 	addButton = select("#add");
 	addButton.mousePressed(() => {
 
@@ -34,7 +28,7 @@ function setup() {
 
 function draw() {
 
-	if (!isRunning && countryname )
+	if (!isAnyRunning() && countryname )
 		addButton.show();
 	else
 		addButton.hide();
@@ -45,72 +39,26 @@ function draw() {
 	let target = doPreambles? "#preambles" : "#articles";
 	let maxCount =  doPreambles ? maxPreambleCount : maxParagraphCount;
 	let currCount =  doPreambles ? preambleCount : articleCount;
-	if(!isRunning && countryname && currCount < maxCount){
 
-		let rnn = doPreambles ? charRNNPreambles : charRNNArticles;
+	if(!isAnyRunning() && countryname && currCount < maxCount){
+
+		let generator = doPreambles ? preamblesGenerator : articlesGenerator;
 		select('#preambles-title').html("Preambles");
 
-		let temperature = doPreambles ? 0.95 : .88;
-		startParagraphLoop(target,rnn,temperature);
+		generator.startParagraphLoop();
 	}
 
 }
 
-
-async function startParagraphLoop(target,charRNN,temperature) {
-
-	console.log("prediction loop")
-	if(isRunning){
-
-		return;
-	}
-
-	isRunning = true;
-	canceled = false;
-
-	currentParagraph = createElement("li");
-	currentParagraph.html(name)
-	currentParagraph.parent(target);
-
-	let ucCountryName = jsUcfirst(countryname);
-	let seed = "The country";
-
-	let lastChar = null;
-	await charRNN.reset();
-	await charRNN.feed(seed);
-	let next = await charRNN.predict(temperature);
-	lastChar = next.sample;
-	await charRNN.feed(lastChar);
-
-	addText(ucCountryName);
-
-	while (currentParagraph && !(currentParagraph.html().length > 100 && lastChar === '.')  && !canceled) {
-
-		let next = await charRNN.predict(temperature);
-
-		next = await charRNN.predict(temperature);
-
-		next = await charRNN.predict(temperature);
-		lastChar = next.sample;
-		await charRNN.feed(lastChar);
-		addText(lastChar);
-	}
-	isRunning = false;
-}
-function delay(ms)
-{
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function jsUcfirst(string)
+function isAnyRunning()
 {
 
-	return string.charAt(0).toUpperCase() + string.slice(1);
+	let isRunningAny = false;
+	rnns.forEach(r=>isRunningAny |= r.isRunning);
 
+	return isRunningAny;
 }
-function addText(text) {
-	currentParagraph.html(currentParagraph.html() + text);
-}
+
 
 
 /*
@@ -311,6 +259,8 @@ function erase() {
 
 function submit() {
 
+	canv.backgroundColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+	canv.renderAll();
 	let newCountryTag = sketchClassNames[0];
 
 	if (newCountryTag != countryTag) {
@@ -318,27 +268,31 @@ function submit() {
 		countryTag = newCountryTag;
 		countryname = getNiceCountryNameWithPrefix(countryTag);
 
-		let neighboursTitle = select("#neighbours-title");
-		neighboursTitle.html(getNiceGroupName(getNiceCountryName(countryTag))+":")
-		let neighbours = select("#neighbours");
-		neighbours.html("");
-		for (let i = 1; i < sketchClassNames.length; i++) {
-
-			let e = sketchClassNames[i];
-			let niceName = getNiceCountryNameWithPrefix(e);
-			let el = createElement("li",niceName);
-			el.parent(neighbours);
-		}
+		updateNeighbours();
 
 		select("#preambles").html("");
 		select("#articles").html("");
 
-		canceled = true;
-
 		document.querySelector("#countryname-text").innerHTML = "Constitution of " + countryname;
-		document.querySelector("#countryname-title").innerHTML = jsUcfirst(countryname);
+
+		rnns.forEach(e=>e.canceled = true);
 	}
 
+}
+
+function updateNeighbours()
+{
+	let neighboursTitle = select("#neighbours-title");
+	neighboursTitle.html(getNiceGroupName(getNiceCountryName(countryTag))+":")
+	let neighbours = select("#neighbours");
+	neighbours.html("");
+	for (let i = 1; i < sketchClassNames.length; i++) {
+
+		let e = sketchClassNames[i];
+		let niceName = getNiceCountryNameWithPrefix(e);
+		let el = createElement("li",niceName);
+		el.parent(neighbours);
+	}
 }
 
 function getNiceGroupName(name) {
@@ -366,7 +320,6 @@ let prefixes = [
 	"",
 	"",
 	"the Republic of ",
-	"the United States of ",
 	"the Kingdom of ",
 	"the Sultanate of ",
 	"the Empire of ",
@@ -476,4 +429,66 @@ let niceNames = {"screwdriver":"Screwdriver",
 	"eye":"Eye",
 	"cookie":"Cookie",
 	"airplane":"Airplane"
+}
+
+function jsUcfirst(string)
+{
+
+	return string.charAt(0).toUpperCase() + string.slice(1);
+
+}
+
+class RNNGenerator
+{
+	constructor(model,target,maxcount,temperature){
+
+		this.rnn = ml5.charRNN(model, () => {
+			console.log("model " +model+" ready");
+		});
+
+		this.target = target;
+		this.temperature = temperature;
+		this.currentParagraph = null;
+		this.isRunning = false;
+		this.canceled = false;
+	}
+
+	async startParagraphLoop() {
+
+		if(this.isRunning){
+
+			return;
+		}
+
+		this.isRunning = true;
+		this.canceled = false;
+
+		this.currentParagraph = createElement("li");
+		this.currentParagraph.html(name)
+		this.currentParagraph.parent(this.target);
+
+		let ucCountryName = jsUcfirst(countryname);
+		let seed = "The country";
+
+		await this.rnn.reset();
+		await this.rnn.feed(seed);
+		let next = await this.rnn.predict(this.temperature);
+		let lastChar = next.sample;
+		await this.rnn.feed(lastChar);
+
+		this.addText(ucCountryName);
+
+		while (this.currentParagraph && !(this.currentParagraph.html().length > 100 && lastChar === '.')  && !this.canceled) {
+
+			let next = await this.rnn.predict(this.temperature);
+			lastChar = next.sample;
+			await this.rnn.feed(lastChar);
+			this.addText(lastChar);
+		}
+		this.isRunning = false;
+	}
+	addText(text) {
+		this.currentParagraph.html(this.currentParagraph.html() + text);
+	}
+
 }

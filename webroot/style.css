@@ -60,8 +60,14 @@ canvas{
 #neighbours-title{
     font-weight: bold;
 }
+blockquote:before{
+    content: '“';
+}
+blockquote:after{
+    content: '”';
+}
 blockquote{
-
+    text-transform: capitalize;
     font-size:18pt;
     font-style: italic;
     margin-left:0;

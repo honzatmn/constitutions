@@ -1,7 +1,4 @@
-
 let countryname;
-let maxParagraphCount = 3;
-let maxPreambleCount = 2;
 let countryTag;
 let addButton;
 
@@ -13,12 +10,14 @@ function setup() {
 
 	noCanvas();
 
-	preamblesGenerator = new RNNGenerator('models/preambles',"#preambles",2,0.95 );
-	articlesGenerator =new RNNGenerator('models/combined',"#articles",3,0.88 );
+	mottoGenerator = new RNNGenerator('models/latin-phrases',"Non", " ",30,"#motto","span", 1, 0.2);
+	preamblesGenerator = new RNNGenerator('models/preambles',null,  ".",100,"#preambles", "li",2, 0.95);
+	articlesGenerator = new RNNGenerator('models/combined', null, ".",100,"#articles","li", 3, 0.88);
 
+	rnns.push(mottoGenerator);
 	rnns.push(preamblesGenerator);
 	rnns.push(articlesGenerator);
-	
+
 	addButton = select("#add");
 	addButton.mousePressed(() => {
 
@@ -28,37 +27,42 @@ function setup() {
 
 function draw() {
 
-	if (!isAnyRunning() && countryname )
+	if (!isAnyRunning() && countryname)
 		addButton.show();
 	else
 		addButton.hide();
 
-	let preambleCount = select('#preambles').elt.childElementCount;
-	let articleCount = select('#articles').elt.childElementCount;
-	let doPreambles = preambleCount < maxPreambleCount;
-	let target = doPreambles? "#preambles" : "#articles";
-	let maxCount =  doPreambles ? maxPreambleCount : maxParagraphCount;
-	let currCount =  doPreambles ? preambleCount : articleCount;
+	if (!isAnyRunning() && countryname ) {
 
-	if(!isAnyRunning() && countryname && currCount < maxCount){
+		let currGenerator = null;
+		for (let i = 0; i < rnns.length; i++) {
 
-		let generator = doPreambles ? preamblesGenerator : articlesGenerator;
+			let rnn = rnns[i];
+			if (!rnn.isFinished()) {
+				currGenerator = rnn;
+				break;
+			}
+		}
+
+		if(currGenerator)
+		{
+
 		select('#preambles-title').html("Preambles");
 
-		generator.startParagraphLoop();
+			currGenerator.startParagraphLoop();
+		}
+
 	}
 
 }
 
-function isAnyRunning()
-{
+function isAnyRunning() {
 
 	let isRunningAny = false;
-	rnns.forEach(r=>isRunningAny |= r.isRunning);
+	rnns.forEach(r => isRunningAny |= r.isRunning);
 
 	return isRunningAny;
 }
-
 
 
 /*
@@ -259,8 +263,8 @@ function erase() {
 
 function submit() {
 
-	canv.backgroundColor = '#'+Math.floor(Math.random()*16777215).toString(16);
-	canv.renderAll();
+	//canv.backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+	//canv.renderAll();
 	let newCountryTag = sketchClassNames[0];
 
 	if (newCountryTag != countryTag) {
@@ -275,38 +279,38 @@ function submit() {
 
 		document.querySelector("#countryname-text").innerHTML = "Constitution of " + countryname;
 
-		rnns.forEach(e=>e.canceled = true);
+		rnns.forEach(e => e.canceled = true);
 	}
 
 }
 
-function updateNeighbours()
-{
+function updateNeighbours() {
 	let neighboursTitle = select("#neighbours-title");
-	neighboursTitle.html(getNiceGroupName(getNiceCountryName(countryTag))+":")
+	neighboursTitle.html(getNiceGroupName(getNiceCountryName(countryTag)) + ":")
 	let neighbours = select("#neighbours");
 	neighbours.html("");
 	for (let i = 1; i < sketchClassNames.length; i++) {
 
 		let e = sketchClassNames[i];
 		let niceName = getNiceCountryNameWithPrefix(e);
-		let el = createElement("li",niceName);
+		let el = createElement("li", niceName);
 		el.parent(neighbours);
 	}
 }
 
 function getNiceGroupName(name) {
 
-	return groupPrefixes[floor(random(0,groupPrefixes.length))] + name;
+	return groupPrefixes[floor(random(0, groupPrefixes.length))] + name;
 }
 
 function getNiceCountryNameWithPrefix(tag) {
 
-	return prefixes[floor(random(0,prefixes.length))] + getNiceCountryName(tag);
+	return prefixes[floor(random(0, prefixes.length))] + getNiceCountryName(tag);
 }
+
 function getNiceCountryName(tag) {
 
-	return "the "+niceNames[tag];
+	return "the " + niceNames[tag];
 }
 
 let groupPrefixes = [
@@ -329,133 +333,141 @@ let prefixes = [
 	"the Country of "
 ]
 
-let niceNames = {"screwdriver":"Screwdriver",
-	"wristwatch":"Wristwatch",
-	"butterfly":"Butterfly",
-	"sword":"Sword",
-	"cat":"Cat",
-	"shorts":"Shorts",
-	"eyeglasses":"Eyeglasses",
-	"lollipop":"Lollipop",
-	"baseball":"Baseball",
-	"traffic_light":"Traffic Light",
-	"sun":"Sun",
-	"helmet":"Helmet",
-	"bridge":"Bridge",
-	"alarm_clock":"Alarm Clock",
-	"drums":"Drums",
-	"book":"Book",
-	"broom":"Broom",
-	"fan":"Fan",
-	"scissors":"Scissors",
-	"cloud":"Cloud",
-	"tent":"Tent",
-	"clock":"Clock",
-	"headphones":"Headphones",
-	"bicycle":"Bicycle",
-	"stop_sign":"Stop Sign",
-	"table":"Table",
-	"donut":"Donut",
-	"umbrella":"Umbrella",
-	"smiley_face":"Smiley Face",
-	"pillow":"Pillow",
-	"bed":"Bed",
-	"saw":"Saw",
-	"light_bulb":"Light Bulb",
-	"shovel":"Shovel",
-	"bird":"Bird",
-	"syringe":"Syringe",
-	"coffee_cup":"Coffee Cup",
-	"moon":"Moon",
-	"ice_cream":"Ice Cream",
-	"moustache":"Moustache",
-	"cell_phone":"Cell Phone",
-	"pants":"Pants",
-	"anvil":"Anvil",
-	"radio":"Radio",
-	"chair":"Chair",
-	"star":"Star",
-	"door":"Door",
-	"face":"Face",
-	"mushroom":"Mushroom",
-	"tree":"Tree",
-	"rifle":"Rifle",
-	"camera":"Camera",
-	"lightning":"Lightning",
-	"flower":"Flower",
-	"basketball":"Basketball",
-	"wheel":"Wheel",
-	"hammer":"Hammer",
-	"hat":"Hat",
-	"knife":"Knife",
-	"diving_board":"Diving Board",
-	"square":"Square",
-	"cup":"Cup",
-	"mountain":"Mountain",
-	"apple":"Apple",
-	"spoon":"Spoon",
-	"key":"Key",
-	"pencil":"Pencil",
-	"line":"Line",
-	"ladder":"Ladder",
-	"triangle":"Triangle",
-	"t-shirt":"T-Shirt",
-	"dumbbell":"Dumbbell",
-	"microphone":"Microphone",
-	"snake":"Snake",
-	"sock":"Sock",
-	"suitcase":"Suitcase",
-	"laptop":"Laptop",
-	"paper_clip":"Paper Clip",
-	"rainbow":"Rainbow",
-	"candle":"Candle",
-	"bread":"Bread",
-	"spider":"Spider",
-	"envelope":"Envelope",
-	"circle":"Circle",
-	"power_outlet":"Power Outlet",
-	"tooth":"Tooth",
-	"hot_dog":"Hot Dog",
-	"frying_pan":"Frying Pan",
-	"bench":"Bench",
-	"ceiling_fan":"Ceiling Fan",
-	"tennis_racquet":"Tennis Racquet",
-	"car":"Car",
-	"beard":"Beard",
-	"axe":"Axe",
-	"baseball_bat":"Baseball Bat",
-	"pizza":"Pizza",
-	"grapes":"Grapes",
-	"eye":"Eye",
-	"cookie":"Cookie",
-	"airplane":"Airplane"
+let niceNames = {
+	"screwdriver": "Screwdriver",
+	"wristwatch": "Wristwatch",
+	"butterfly": "Butterfly",
+	"sword": "Sword",
+	"cat": "Cat",
+	"shorts": "Shorts",
+	"eyeglasses": "Eyeglasses",
+	"lollipop": "Lollipop",
+	"baseball": "Baseball",
+	"traffic_light": "Traffic Light",
+	"sun": "Sun",
+	"helmet": "Helmet",
+	"bridge": "Bridge",
+	"alarm_clock": "Alarm Clock",
+	"drums": "Drums",
+	"book": "Book",
+	"broom": "Broom",
+	"fan": "Fan",
+	"scissors": "Scissors",
+	"cloud": "Cloud",
+	"tent": "Tent",
+	"clock": "Clock",
+	"headphones": "Headphones",
+	"bicycle": "Bicycle",
+	"stop_sign": "Stop Sign",
+	"table": "Table",
+	"donut": "Donut",
+	"umbrella": "Umbrella",
+	"smiley_face": "Smiley Face",
+	"pillow": "Pillow",
+	"bed": "Bed",
+	"saw": "Saw",
+	"light_bulb": "Light Bulb",
+	"shovel": "Shovel",
+	"bird": "Bird",
+	"syringe": "Syringe",
+	"coffee_cup": "Coffee Cup",
+	"moon": "Moon",
+	"ice_cream": "Ice Cream",
+	"moustache": "Moustache",
+	"cell_phone": "Cell Phone",
+	"pants": "Pants",
+	"anvil": "Anvil",
+	"radio": "Radio",
+	"chair": "Chair",
+	"star": "Star",
+	"door": "Door",
+	"face": "Face",
+	"mushroom": "Mushroom",
+	"tree": "Tree",
+	"rifle": "Rifle",
+	"camera": "Camera",
+	"lightning": "Lightning",
+	"flower": "Flower",
+	"basketball": "Basketball",
+	"wheel": "Wheel",
+	"hammer": "Hammer",
+	"hat": "Hat",
+	"knife": "Knife",
+	"diving_board": "Diving Board",
+	"square": "Square",
+	"cup": "Cup",
+	"mountain": "Mountain",
+	"apple": "Apple",
+	"spoon": "Spoon",
+	"key": "Key",
+	"pencil": "Pencil",
+	"line": "Line",
+	"ladder": "Ladder",
+	"triangle": "Triangle",
+	"t-shirt": "T-Shirt",
+	"dumbbell": "Dumbbell",
+	"microphone": "Microphone",
+	"snake": "Snake",
+	"sock": "Sock",
+	"suitcase": "Suitcase",
+	"laptop": "Laptop",
+	"paper_clip": "Paper Clip",
+	"rainbow": "Rainbow",
+	"candle": "Candle",
+	"bread": "Bread",
+	"spider": "Spider",
+	"envelope": "Envelope",
+	"circle": "Circle",
+	"power_outlet": "Power Outlet",
+	"tooth": "Tooth",
+	"hot_dog": "Hot Dog",
+	"frying_pan": "Frying Pan",
+	"bench": "Bench",
+	"ceiling_fan": "Ceiling Fan",
+	"tennis_racquet": "Tennis Racquet",
+	"car": "Car",
+	"beard": "Beard",
+	"axe": "Axe",
+	"baseball_bat": "Baseball Bat",
+	"pizza": "Pizza",
+	"grapes": "Grapes",
+	"eye": "Eye",
+	"cookie": "Cookie",
+	"airplane": "Airplane"
 }
 
-function jsUcfirst(string)
-{
+function jsUcfirst(string) {
 
 	return string.charAt(0).toUpperCase() + string.slice(1);
 
 }
 
-class RNNGenerator
-{
-	constructor(model,target,maxcount,temperature){
+class RNNGenerator {
+	constructor(model,seed,endChar, minLength, target,elementType, maxcount, temperature) {
 
 		this.rnn = ml5.charRNN(model, () => {
-			console.log("model " +model+" ready");
+			console.log("model " + model + " ready");
 		});
 
+		this.elementType = elementType;
 		this.target = target;
 		this.temperature = temperature;
 		this.currentParagraph = null;
 		this.isRunning = false;
 		this.canceled = false;
+		this.maxCount = maxcount;
+		this.endChar = endChar;
+		this.seed = seed;
+		this.minLength = minLength;
+	}
+
+	isFinished = function () {
+		return select(this.target).elt.childElementCount >= this.maxCount;
 	}
 
 	async startParagraphLoop() {
 
-		if(this.isRunning){
+		if (this.isRunning) {
 
 			return;
 		}
@@ -463,12 +475,13 @@ class RNNGenerator
 		this.isRunning = true;
 		this.canceled = false;
 
-		this.currentParagraph = createElement("li");
+		this.currentParagraph = createElement(this.elementType);
 		this.currentParagraph.html(name)
 		this.currentParagraph.parent(this.target);
 
-		let ucCountryName = jsUcfirst(countryname);
-		let seed = "The country";
+		select(this.target).show();
+
+		let seed = this.seed != null ? this.seed : "The country";
 
 		await this.rnn.reset();
 		await this.rnn.feed(seed);
@@ -476,17 +489,29 @@ class RNNGenerator
 		let lastChar = next.sample;
 		await this.rnn.feed(lastChar);
 
-		this.addText(ucCountryName);
+		if(this.seed == null)
+		{
+			let ucCountryName = jsUcfirst(countryname);
+			this.addText(ucCountryName);
+		}
 
-		while (this.currentParagraph && !(this.currentParagraph.html().length > 100 && lastChar === '.')  && !this.canceled) {
+		while (this.currentParagraph && !(this.currentParagraph.html().length > this.minLength && lastChar === this.endChar) && !this.canceled) {
 
 			let next = await this.rnn.predict(this.temperature);
 			lastChar = next.sample;
 			await this.rnn.feed(lastChar);
 			this.addText(lastChar);
 		}
+
+		if(lastChar === " ")
+		{
+			let str = this.currentParagraph.html();
+			str = str.substring(0, str.length - 1);
+			this.currentParagraph.html(str);
+		}
 		this.isRunning = false;
 	}
+
 	addText(text) {
 		this.currentParagraph.html(this.currentParagraph.html() + text);
 	}

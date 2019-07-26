@@ -23,16 +23,18 @@
 
     <div>
         <canvas id="canvas" width="300" height="300" class="canvas"></canvas>
-        <div class="btn-group" style='margin-top:40px; '>
-            <button type="button" class="btn btn-outline-primary" onclick='erase()' style='margin-left:10px;' disabled>Clear
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" onclick='erase()' disabled>Clear
             </button>
-            <button type="button" class="btn btn-outline-primary" onclick='submit()' style='margin-left:10px;' disabled>Submit
+            <button type="button" class="btn btn-outline-primary" onclick='submit()' disabled>Submit
             </button>
         </div>
+        <div id="neighbours-title"></div>
+        <ul id="neighbours"></ul>
     </div>
     <div>
         <div id="constitution">
-            <h1><span class="countryname-text"></span></h1>
+            <h1 id="countryname-text"></h1>
             <strong id="preambles-title"></strong>
             <ul id="preambles"></ul>
             <ol id="articles"></ol>

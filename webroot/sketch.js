@@ -1,7 +1,7 @@
 
 let currentParagraph;
 let maxParagraphCount = 3;
-let maxPreambleCount = 3;
+let maxPreambleCount = 2;
 let countryname;
 let countryTag;
 let addButton;
@@ -50,7 +50,7 @@ function draw() {
 		let rnn = doPreambles ? charRNNPreambles : charRNNArticles;
 		select('#preambles-title').html("Preambles");
 
-		let temperature = doPreambles ? 0.9 : .88;
+		let temperature = doPreambles ? 0.95 : .88;
 		startParagraphLoop(target,rnn,temperature);
 	}
 
@@ -316,30 +316,64 @@ function submit() {
 	if (newCountryTag != countryTag) {
 
 		countryTag = newCountryTag;
-		countryname = getNiceCountryName(countryTag);
+		countryname = getNiceCountryNameWithPrefix(countryTag);
+
+		let neighboursTitle = select("#neighbours-title");
+		neighboursTitle.html(getNiceGroupName(getNiceCountryName(countryTag))+":")
+		let neighbours = select("#neighbours");
+		neighbours.html("");
+		for (let i = 1; i < sketchClassNames.length; i++) {
+
+			let e = sketchClassNames[i];
+			let niceName = getNiceCountryNameWithPrefix(e);
+			let el = createElement("li",niceName);
+			el.parent(neighbours);
+		}
+
 		select("#preambles").html("");
 		select("#articles").html("");
 
 		canceled = true;
 
-		let elements = document.querySelectorAll(".countryname-text");
-		elements.forEach((el) => {
-			el.innerHTML = "Constitution of " + countryname
-		});
+		document.querySelector("#countryname-text").innerHTML = "Constitution of " + countryname;
+		document.querySelector("#countryname-title").innerHTML = jsUcfirst(countryname);
 	}
 
 }
 
-function getNiceCountryName(tag) {
+function getNiceGroupName(name) {
 
-	return prefixes[floor(random(0,prefixes.length))] + niceNames[tag];
+	return groupPrefixes[floor(random(0,groupPrefixes.length))] + name;
 }
 
+function getNiceCountryNameWithPrefix(tag) {
+
+	return prefixes[floor(random(0,prefixes.length))] + getNiceCountryName(tag);
+}
+function getNiceCountryName(tag) {
+
+	return "the "+niceNames[tag];
+}
+
+let groupPrefixes = [
+	"Union of ",
+	"Commonwealth of ",
+	"United States of ",
+	"Federal Union of "
+]
+
 let prefixes = [
-	"the ",
-	"the Republic of the ",
-	"the United States of the ",
-	"the Kingdom of the ",
+	"",
+	"",
+	"the Republic of ",
+	"the United States of ",
+	"the Kingdom of ",
+	"the Sultanate of ",
+	"the Empire of ",
+	"the State of ",
+	"the Dynasty of ",
+	"the Nation of ",
+	"the Country of "
 ]
 
 let niceNames = {"screwdriver":"Screwdriver",

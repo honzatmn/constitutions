@@ -20,19 +20,19 @@ h1
     font-size: 15pt;
 }
 
-ol {
+#constitution ol {
     counter-reset: item;
     list-style-type: none;
     padding-left: 0;
 }
 
-ol li:before {
+#constitution ol li:before {
     content: 'Art. ' counter(item, decimal) '';
     counter-increment: item;
     display: block;
     font-weight: bold;
 }
-li{
+#constitution li{
 
     white-space: pre-line;
     margin-bottom:15px;
@@ -45,7 +45,16 @@ li{
     margin-left:10px;
 
 }
-
+.canvas-container{
+    padding-bottom:10px;
+}
 canvas{
     border:1px solid #b9bfc9;
+}
+
+.btn-group{
+    margin-bottom:30px;
+}
+#neighbours-title{
+    font-weight: bold;
 }

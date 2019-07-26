@@ -37,3 +37,15 @@ li{
     white-space: pre-line;
     margin-bottom:15px;
 }
+.columns{
+    display: flex;
+
+}
+.columns > div{
+    margin-left:10px;
+
+}
+
+canvas{
+    border:1px solid #b9bfc9;
+}

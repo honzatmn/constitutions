@@ -1,30 +1,47 @@
 <html>
 
 <head>
-  <meta charset="UTF-8">
-  <title>Constitutions</title>
+    <meta charset="UTF-8">
+    <title>Constitutions</title>
 
-  <script src="p5.min.js"></script>
-  <script src="p5.dom.min.js"></script>
-  <script src="ml5.min.js"></script>
-  <link href="//db.onlinewebfonts.com/c/882e10443fd9b780036f6ffa6609fd00?family=1791ConstitutionW01-Rg" rel="stylesheet" type="text/css"/>
-<link rel="stylesheet" type="text/css" href="style.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="p5.min.js"></script>
+    <script src="p5.dom.min.js"></script>
+    <script src="ml5.min.js"></script>
+
+    <script src="fabric.js"></script>
+    <script src="sketch.js"></script>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<script src="sketch.js"></script>
 
 <body>
+<div class="columns">
 
+    <div>
+        <canvas id="canvas" width="300" height="300" class="canvas"></canvas>
+        <div class="btn-group" style='margin-top:40px; '>
+            <input type="range" min="5" max="20" value="10" class="slider" id="myRange" style='margin-top:20px;'>
+            <button type="button" class="btn btn-outline-primary" onclick='erase()' style='margin-left:10px;' disabled>Clear
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick='submit()' style='margin-left:10px;' disabled>Submit
+            </button>
+        </div>
+    </div>
+    <div>
+        <div id="constitution">
+            <h1><span class="countryname-text"></span></h1>
+            <ol id="result"></ol>
+            <button id="add">Add Article</button>
+        </div>
 
-<div id="input">
-Generate Constitution for: <input type="text" id="countryname" value="Machine Learning"><button id="generate">Generate</button>
+    </div>
 </div>
 
-<div id="constitution">
-  <h1><span class="countryname-text"></span></h1>
-  <ol id="result"></ol>
-  <button id="add">Add Article</button>
-</div>
+
 </body>
 
 </html>

@@ -1,78 +1,113 @@
-let charRNN;
 
 let temperature = .88;
 let currentParagraph;
-let maxParagraphCount = 1;
+let maxParagraphCount = 3;
+let maxPreambleCount = 3;
 let countryname;
+let countryTag;
 let addButton;
+let isRunning;
+let canceled;
+
+let charRNNPreambles;
+let charRNNArticles;
 
 function setup() {
 
 	noCanvas();
 
 
-	charRNN = ml5.charRNN('models/combined', () => {
+	charRNNPreambles = ml5.charRNN('models/preambles', () => {
+		console.log("model ready");
+	});
+
+	charRNNArticles = ml5.charRNN('models/combined', () => {
 		console.log("model ready");
 	});
 
 
 	addButton = select("#add");
-	addButton.mousePressed(()=>{
+	addButton.mousePressed(() => {
 
 		maxParagraphCount++;
-		loopRNN();
 	})
 }
 
-function draw()
-{
-	if(!currentParagraph && countryname != null)
+function draw() {
+
+	if (!isRunning && countryname )
 		addButton.show();
 	else
 		addButton.hide();
-}
 
+	let preambleCount = select('#preambles').elt.childElementCount;
+	let articleCount = select('#articles').elt.childElementCount;
+	let doPreambles = preambleCount < maxPreambleCount;
+	let target = doPreambles? "#preambles" : "#articles";
+	let maxCount =  doPreambles ? maxPreambleCount : maxParagraphCount;
+	let currCount =  doPreambles ? preambleCount : articleCount;
+	if(!isRunning && countryname && currCount < maxCount){
 
-async function loopRNN() {
-
-	await newParagraph();
-
-	while (currentParagraph) {
-
-		let text = currentParagraph.html();
-		finished = text.length > 100 && text.charAt(text.length - 1) === '.';
-
-		if (finished) {
-			if (select('#result').elt.childElementCount < maxParagraphCount) {
-				await newParagraph();
-			} else {
-				currentParagraph = null;
-				break;
-			}
-		}
-
-		await predict();
+		let rnn = doPreambles ? charRNNPreambles : charRNNArticles;
+		select('#preambles-title').html("Preambles");
+		startParagraphLoop(target,rnn);
 	}
+
 }
 
-async function newParagraph() {
 
-	let seed = "The constitution of " + countryname + ", Art. 1\n" + countryname + " ";
+async function startParagraphLoop(target,charRNN) {
+
+	console.log("prediction loop")
+	if(isRunning){
+
+		return;
+	}
+
+	isRunning = true;
+	canceled = false;
+
 	currentParagraph = createElement("li");
-	currentParagraph.parent('#result');
-	charRNN.reset();
+	currentParagraph.html(name)
+	currentParagraph.parent(target);
+
+	let ucCountryName = jsUcfirst(countryname);
+	let seed = "The country";
+	seed += " "+seed;
+	seed += " "+seed;
+	seed += " "+seed;
+	seed += " "+seed;
+
+	await charRNN.reset();
 	await charRNN.feed(seed);
-	addText(countryname + " ")
+
+	addText(ucCountryName);
+
+	let lastChar = null;
+	while (currentParagraph && !(currentParagraph.html().length > 100 && lastChar === '.')  && !canceled) {
+
+		let next = await charRNN.predict(temperature);
+
+		next = await charRNN.predict(temperature);
+
+		next = await charRNN.predict(temperature);
+		lastChar = next.sample;
+		await charRNN.feed(lastChar);
+		addText(lastChar);
+	}
+	isRunning = false;
+}
+function delay(ms)
+{
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function predict() {
-	let next = await charRNN.predict(temperature);
-	//console.log(next)
-	await charRNN.feed(next.sample);
-	addText(next.sample);
+function jsUcfirst(string)
+{
+
+	return string.charAt(0).toUpperCase() + string.slice(1);
+
 }
-
-
 function addText(text) {
 	currentParagraph.html(currentParagraph.html() + text);
 }
@@ -86,13 +121,13 @@ var canv;
 var classNames = [];
 var coords = [];
 var mousePressed = false;
-let sketchClassProbabilities= [];
+let sketchClassProbabilities = [];
 let sketchClassNames = [];
 /*
 prepare the drawing canvas
 */
 
-$(document).ready(()=>{
+$(document).ready(() => {
 
 	canv = window._canvas = new fabric.Canvas('canvas');
 	canv.backgroundColor = '#ffffff';
@@ -115,8 +150,7 @@ $(document).ready(()=>{
 	load();
 })
 
-async function load()
-{
+async function load() {
 
 	//load the model
 	model = await tf.loadLayersModel('models/sketch-detection2/model.json')
@@ -133,7 +167,7 @@ async function load()
 	await $.ajax({
 		url: 'models/sketch-detection2/class_names.txt',
 		dataType: 'text',
-	}).done((data)=>{
+	}).done((data) => {
 
 		const lst = data.split(/\n/)
 		for (var i = 0; i < lst.length - 1; i++) {
@@ -142,6 +176,7 @@ async function load()
 		}
 	});
 }
+
 /*
 record the current drawing coordinates
 */
@@ -220,7 +255,7 @@ function getFrame() {
 
 		//find the top 5 predictions
 		let indices = findIndicesOfMax(pred, 5)
-		sketchClassProbabilities = findTopValues(pred, indices,5)
+		sketchClassProbabilities = findTopValues(pred, indices, 5)
 		sketchClassNames = getClassNames(indices)
 	}
 }
@@ -276,18 +311,135 @@ function erase() {
 
 function submit() {
 
-	let newCountryName = sketchClassNames[0];
+	let newCountryTag = sketchClassNames[0];
 
-	if(newCountryName != countryname)
-	{
-		countryname = "The Republic of the "+ newCountryName;
-		select("#result").html("");
+	if (newCountryTag != countryTag) {
+
+		countryTag = newCountryTag;
+		countryname = getNiceCountryName(countryTag);
+		select("#preambles").html("");
+		select("#articles").html("");
+
+		canceled = true;
 
 		let elements = document.querySelectorAll(".countryname-text");
 		elements.forEach((el) => {
 			el.innerHTML = "Constitution of " + countryname
 		});
-		loopRNN();
 	}
 
+}
+
+function getNiceCountryName(tag) {
+
+	return prefixes[floor(random(0,prefixes.length))] + niceNames[tag];
+}
+
+let prefixes = [
+	"the ",
+	"the Republic of the ",
+	"the United States of the ",
+	"the Kingdom of the ",
+]
+
+let niceNames = {"screwdriver":"Screwdriver",
+	"wristwatch":"Wristwatch",
+	"butterfly":"Butterfly",
+	"sword":"Sword",
+	"cat":"Cat",
+	"shorts":"Shorts",
+	"eyeglasses":"Eyeglasses",
+	"lollipop":"Lollipop",
+	"baseball":"Baseball",
+	"traffic_light":"Traffic Light",
+	"sun":"Sun",
+	"helmet":"Helmet",
+	"bridge":"Bridge",
+	"alarm_clock":"Alarm Clock",
+	"drums":"Drums",
+	"book":"Book",
+	"broom":"Broom",
+	"fan":"Fan",
+	"scissors":"Scissors",
+	"cloud":"Cloud",
+	"tent":"Tent",
+	"clock":"Clock",
+	"headphones":"Headphones",
+	"bicycle":"Bicycle",
+	"stop_sign":"Stop Sign",
+	"table":"Table",
+	"donut":"Donut",
+	"umbrella":"Umbrella",
+	"smiley_face":"Smiley Face",
+	"pillow":"Pillow",
+	"bed":"Bed",
+	"saw":"Saw",
+	"light_bulb":"Light Bulb",
+	"shovel":"Shovel",
+	"bird":"Bird",
+	"syringe":"Syringe",
+	"coffee_cup":"Coffee Cup",
+	"moon":"Moon",
+	"ice_cream":"Ice Cream",
+	"moustache":"Moustache",
+	"cell_phone":"Cell Phone",
+	"pants":"Pants",
+	"anvil":"Anvil",
+	"radio":"Radio",
+	"chair":"Chair",
+	"star":"Star",
+	"door":"Door",
+	"face":"Face",
+	"mushroom":"Mushroom",
+	"tree":"Tree",
+	"rifle":"Rifle",
+	"camera":"Camera",
+	"lightning":"Lightning",
+	"flower":"Flower",
+	"basketball":"Basketball",
+	"wheel":"Wheel",
+	"hammer":"Hammer",
+	"hat":"Hat",
+	"knife":"Knife",
+	"diving_board":"Diving Board",
+	"square":"Square",
+	"cup":"Cup",
+	"mountain":"Mountain",
+	"apple":"Apple",
+	"spoon":"Spoon",
+	"key":"Key",
+	"pencil":"Pencil",
+	"line":"Line",
+	"ladder":"Ladder",
+	"triangle":"Triangle",
+	"t-shirt":"T-Shirt",
+	"dumbbell":"Dumbbell",
+	"microphone":"Microphone",
+	"snake":"Snake",
+	"sock":"Sock",
+	"suitcase":"Suitcase",
+	"laptop":"Laptop",
+	"paper_clip":"Paper Clip",
+	"rainbow":"Rainbow",
+	"candle":"Candle",
+	"bread":"Bread",
+	"spider":"Spider",
+	"envelope":"Envelope",
+	"circle":"Circle",
+	"power_outlet":"Power Outlet",
+	"tooth":"Tooth",
+	"hot_dog":"Hot Dog",
+	"frying_pan":"Frying Pan",
+	"bench":"Bench",
+	"ceiling_fan":"Ceiling Fan",
+	"tennis_racquet":"Tennis Racquet",
+	"car":"Car",
+	"beard":"Beard",
+	"axe":"Axe",
+	"baseball_bat":"Baseball Bat",
+	"pizza":"Pizza",
+	"grapes":"Grapes",
+	"eye":"Eye",
+	"cookie":"Cookie",
+	"airplane":"Airplane"
 }

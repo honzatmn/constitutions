@@ -24,7 +24,6 @@
     <div>
         <canvas id="canvas" width="300" height="300" class="canvas"></canvas>
         <div class="btn-group" style='margin-top:40px; '>
-            <input type="range" min="5" max="20" value="10" class="slider" id="myRange" style='margin-top:20px;'>
             <button type="button" class="btn btn-outline-primary" onclick='erase()' style='margin-left:10px;' disabled>Clear
             </button>
             <button type="button" class="btn btn-outline-primary" onclick='submit()' style='margin-left:10px;' disabled>Submit
@@ -34,7 +33,9 @@
     <div>
         <div id="constitution">
             <h1><span class="countryname-text"></span></h1>
-            <ol id="result"></ol>
+            <strong id="preambles-title"></strong>
+            <ul id="preambles"></ul>
+            <ol id="articles"></ol>
             <button id="add">Add Article</button>
         </div>
 

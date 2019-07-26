@@ -1,5 +1,4 @@
 
-let temperature = .88;
 let currentParagraph;
 let maxParagraphCount = 3;
 let maxPreambleCount = 3;
@@ -50,13 +49,15 @@ function draw() {
 
 		let rnn = doPreambles ? charRNNPreambles : charRNNArticles;
 		select('#preambles-title').html("Preambles");
-		startParagraphLoop(target,rnn);
+
+		let temperature = doPreambles ? 0.9 : .88;
+		startParagraphLoop(target,rnn,temperature);
 	}
 
 }
 
 
-async function startParagraphLoop(target,charRNN) {
+async function startParagraphLoop(target,charRNN,temperature) {
 
 	console.log("prediction loop")
 	if(isRunning){
@@ -73,17 +74,16 @@ async function startParagraphLoop(target,charRNN) {
 
 	let ucCountryName = jsUcfirst(countryname);
 	let seed = "The country";
-	seed += " "+seed;
-	seed += " "+seed;
-	seed += " "+seed;
-	seed += " "+seed;
 
+	let lastChar = null;
 	await charRNN.reset();
 	await charRNN.feed(seed);
+	let next = await charRNN.predict(temperature);
+	lastChar = next.sample;
+	await charRNN.feed(lastChar);
 
 	addText(ucCountryName);
 
-	let lastChar = null;
 	while (currentParagraph && !(currentParagraph.html().length > 100 && lastChar === '.')  && !canceled) {
 
 		let next = await charRNN.predict(temperature);

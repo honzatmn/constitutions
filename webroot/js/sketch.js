@@ -298,7 +298,7 @@ function submit() {
 
 }
 
-function setCountryTag(newCountryTag) {
+async function setCountryTag(newCountryTag) {
 
 	if (newCountryTag === countryTag) {
 		return;
@@ -324,7 +324,9 @@ function setCountryTag(newCountryTag) {
 	rnns.forEach(r => r.reset());
 
 
-	generateAnthem(countryname);
+	await generateAnthem(countryname);
+
+	playAnthem();
 }
 
 function random_rgba() {
@@ -333,7 +335,7 @@ function random_rgba() {
 }
 
 async function generateAnthem(seed) {
-	anthem = "";
+	anthem = null;
 
 	if (!seed)
 		return;
@@ -342,6 +344,8 @@ async function generateAnthem(seed) {
 	let anthemlength = 40;
 	await anthemRNN.reset();
 	await anthemRNN.feed(seed);
+
+	anthem = "";
 	for (let i = 0; i < anthemlength; i++) {
 
 		let next = await anthemRNN.predict(temperature);
@@ -349,8 +353,6 @@ async function generateAnthem(seed) {
 		anthem += lastChar;
 		await anthemRNN.feed(lastChar);
 	}
-
-	playAnthem();
 }
 
 function playAnthem()

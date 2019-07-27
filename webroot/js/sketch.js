@@ -49,6 +49,7 @@ function draw() {
 		if (currGenerator) {
 
 			select('#constitution').show();
+			select('.info-wrapper').show();
 
 			currGenerator.startParagraphLoop();
 		}

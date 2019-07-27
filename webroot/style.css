@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Caudex:400,400i,700|Libre+Franklin:900display=swap');
+@import url('https://fonts.googleapis.com/css?family=Caudex:400,400i,700|Libre+Franklin:500,900display=swap');
 
 body{
   font-family: 'Caudex', serif;
@@ -104,11 +104,10 @@ canvas{
 }
 
 .info-wrapper {
-  float: right;
+  display: none;
   padding: 16px;
-  background: #f5f7f9;
-  margin-left: 24px;
-  max-width: 280px;
+  background: #f3d191;
+  margin-top: 24px;
 }
 
 .button {
@@ -116,16 +115,18 @@ canvas{
   height: 52px;
   font-size: 1.1rem;
   font-weight: 700;
-  background: #FFEB3B;
+  background: black;
   border: 2px solid black;
   cursor: pointer;
   text-transform: uppercase;
   width: 100%;
   letter-spacing: 0.5px;
+  color: white;
 }
 
 .button:hover {
-  background: #FFE52F;
+  background: white;
+  color: black
 }
 
 
@@ -139,7 +140,8 @@ canvas{
 }
 
 .button-reset:hover {
-  background: #FFEB3B;
+  background: black;
+  color: white;
 }
 
 .reset-wrapper {

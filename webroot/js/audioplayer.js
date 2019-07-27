@@ -1,4 +1,3 @@
-
 let synth;
 
 
@@ -7,17 +6,77 @@ function playSequenceStr(sequenceStr) {
 	let sequence = sequenceStr.split('');
 	for (let i = 0; i < sequence.length; i++) {
 
-		sequence[i] = midiToAnsi[sequence[i].charCodeAt(0)];
+		let s = midiToAnsi[sequence[i].charCodeAt(0)];
+		s.replace('1','4');
+		s.replace('2','4');
+		s.replace('3','4');
+		s.replace('6','5');
+		s.replace('7','5');
+
+		sequence[i] = s;
 	}
+	//console.log(sequence)
 	//create a synth and connect it to the master output (your speakers)
-	if (!synth)
-		synth = new Tone.Synth().toMaster();
+	if (!synth) {
+		let options =   {
+			vibratoAmount : 0.3 ,
+			vibratoRate : 10 ,
+			harmonicity : .5 ,
+			voice0 : {
+				volume : -10 ,
+				portamento : 1,
+				oscillator : {
+					type : "sine"
+				}
+				,
+				filterEnvelope : {
+					attack : 0.01 ,
+					decay : 0 ,
+					sustain : 1 ,
+					release : 0.5
+				}
+				,
+				envelope : {
+					attack : 0.01 ,
+					decay : 0 ,
+					sustain : 1 ,
+					release : 0.5
+				}
+			}
+			,
+			voice1 : {
+				volume : -10 ,
+				portamento : 1 ,
+				oscillator : {
+					type : "sine"
+				}
+				,
+				filterEnvelope : {
+					attack : 0.01 ,
+					decay : 0 ,
+					sustain : 1 ,
+					release : 0.5
+				}
+				,
+				envelope : {
+					attack : 0.01 ,
+					decay : 0 ,
+					sustain : 1 ,
+					release : 0.5
+				}
+			}
+		}
+;
+
+		synth = new Tone.DuoSynth(options).toMaster();
+	}
 
 	Tone.context.resume();
 
 	var seq = new Tone.Sequence(function (time, note) {
 
-		synth.triggerAttackRelease(note, 1)
+		if (note)
+			synth.triggerAttackRelease(note, 1)
 	}, sequence, "2n");
 
 	seq.loop = false;

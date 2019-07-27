@@ -5,14 +5,19 @@ let addButton;
 let rnns = [];
 let preamblesGenerator;
 let articlesGenerator;
+let anthemRNN;
+let anthem;
 
 function setup() {
 
 	noCanvas();
 
-	mottoGenerator = new RNNGenerator('models/latin-phrases', "Non", " ", 30, "#motto", "#motto-wrapper","span", 1, 0.2);
-	preamblesGenerator = new RNNGenerator('models/preambles', null, ".", 100, "#preambles", "#preambles-wrapper","li", 2, 0.95);
-	articlesGenerator = new RNNGenerator('models/articles-combined-30', null, ".", 100, "#articles", "#articles-wrapper","li", 3, 0.88);
+	anthemRNN = ml5.charRNN("models/anthems", () => {
+		console.log("anthems ready");
+	});
+	mottoGenerator = new RNNGenerator('models/latin-phrases', "Non", " ", 30, "#motto", "#motto-wrapper", "span", 1, 0.2);
+	preamblesGenerator = new RNNGenerator('models/preambles', null, ".", 100, "#preambles", "#preambles-wrapper", "li", 2, 0.95);
+	articlesGenerator = new RNNGenerator('models/articles-combined-30', null, ".", 100, "#articles", "#articles-wrapper", "li", 3, 0.88);
 
 	rnns.push(mottoGenerator);
 	rnns.push(preamblesGenerator);
@@ -89,17 +94,6 @@ $(document).ready(() => {
 	canv.freeDrawingBrush.color = "black";
 	canv.freeDrawingBrush.width = 10;
 	canv.renderAll();
-	//setup listeners
-	canv.on('mouse:up', function (e) {
-		getFrame();
-		mousePressed = false
-	});
-	canv.on('mouse:down', function (e) {
-		mousePressed = true
-	});
-	canv.on('mouse:move', function (e) {
-		recordCoor(e)
-	});
 
 	load();
 })
@@ -128,6 +122,19 @@ async function load() {
 			let symbol = lst[i]
 			classNames[i] = symbol
 		}
+	});
+
+	//setup listeners
+	canv.on('mouse:up', function (e) {
+
+		getFrame();
+		mousePressed = false
+	});
+	canv.on('mouse:down', function (e) {
+		mousePressed = true
+	});
+	canv.on('mouse:move', function (e) {
+		recordCoor(e)
 	});
 }
 
@@ -270,7 +277,7 @@ function submit() {
 
 	//canv.backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
 	//canv.renderAll();
-	if(sketchClassNames.length < 1)
+	if (sketchClassNames.length < 1)
 		return;
 
 	let newCountryTag = sketchClassNames[0];
@@ -278,14 +285,14 @@ function submit() {
 
 	var c = document.getElementById("canvas");
 	var ctx = c.getContext("2d");
-		var my_gradient=ctx.createLinearGradient(0, 0, 180, Math.floor(Math.random() * 360));
-		ctx.globalCompositeOperation = 'multiply';
-		my_gradient.addColorStop(0,random_rgba());
-		my_gradient.addColorStop(0.5,random_rgba());
-		my_gradient.addColorStop(1,random_rgba());
-		ctx.fillStyle = my_gradient;
-		ctx.fillRect(0, 0, 300, 300); 
-	
+	var my_gradient = ctx.createLinearGradient(0, 0, 180, Math.floor(Math.random() * 360));
+	ctx.globalCompositeOperation = 'multiply';
+	my_gradient.addColorStop(0, random_rgba());
+	my_gradient.addColorStop(0.5, random_rgba());
+	my_gradient.addColorStop(1, random_rgba());
+	ctx.fillStyle = my_gradient;
+	ctx.fillRect(0, 0, 300, 300);
+
 }
 
 function setCountryTag(newCountryTag) {
@@ -297,21 +304,51 @@ function setCountryTag(newCountryTag) {
 	countryname = countryTag ? getNiceCountryNameWithPrefix(countryTag) : null;
 
 	updateNeighbours();
-	select("#countryname-text").html( countryTag ? "Constitution of " + countryname : null);
+	select("#countryname-text").html(countryTag ? "Constitution of " + countryname : null);
 
 
-	if(countryTag)
+	if (countryTag)
 		select("#constitution").show();
 	else
 		select("#constitution").hide();
 
-	if(countryTag)
+	if (countryTag)
 		select("#info").hide();
 	else
 		select("#info").show();
 
 
-	rnns.forEach(r=>r.reset());
+	rnns.forEach(r => r.reset());
+
+
+	generateAnthem(countryname);
+}
+
+
+async function generateAnthem(seed) {
+	anthem = "";
+
+	if (!seed)
+		return;
+
+	let temperature = 0.5;
+	let anthemlength = 40;
+	await anthemRNN.reset();
+	await anthemRNN.feed(seed);
+	for (let i = 0; i < anthemlength; i++) {
+
+		let next = await anthemRNN.predict(temperature);
+		let lastChar = next.sample;
+		anthem += lastChar;
+		await anthemRNN.feed(lastChar);
+	}
+
+	playAnthem();
+}
+
+function playAnthem()
+{
+	playSequenceStr(anthem);
 }
 
 function updateNeighbours() {
@@ -320,7 +357,7 @@ function updateNeighbours() {
 	neighbours.html("");
 
 	let neighboursTitle = select("#neighbours-title");
-	let neighboursTitleContent = countryTag ? getNiceGroupName(getNiceCountryName(countryTag)) + ":"  : "";
+	let neighboursTitleContent = countryTag ? getNiceGroupName(getNiceCountryName(countryTag)) + ":" : "";
 	neighboursTitle.html(neighboursTitleContent)
 
 	for (let i = 1; i < sketchClassNames.length; i++) {
@@ -478,7 +515,7 @@ function jsUcfirst(string) {
 }
 
 class RNNGenerator {
-	constructor(model, seed, endChar, minLength, target, targetContainer,elementType, maxcount, temperature) {
+	constructor(model, seed, endChar, minLength, target, targetContainer, elementType, maxcount, temperature) {
 
 		this.rnn = ml5.charRNN(model, () => {
 			console.log("model " + model + " ready");
@@ -487,7 +524,7 @@ class RNNGenerator {
 		this.elementType = elementType;
 		this.target = target;
 		this.targetContainer = targetContainer,
-		this.temperature = temperature;
+			this.temperature = temperature;
 		this.currentParagraph = null;
 		this.isRunning = false;
 		this.canceled = false;
@@ -503,7 +540,7 @@ class RNNGenerator {
 		return select(this.target).elt.childElementCount >= this.maxCount;
 	}
 
-	reset(){
+	reset() {
 
 		select(this.target).html("");
 		select(this.targetContainer).hide();

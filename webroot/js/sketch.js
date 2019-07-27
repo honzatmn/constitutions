@@ -324,7 +324,7 @@ async function setCountryTag(newCountryTag) {
 	rnns.forEach(r => r.reset());
 
 
-	await generateAnthem(countryname);
+	await generateAnthem(countryTag ? String.fromCharCode(72) : null); // 60 = C4
 
 	playAnthem();
 }
@@ -336,8 +336,7 @@ function random_rgba() {
 
 async function generateAnthem(seed) {
 	anthem = null;
-
-	if (!seed)
+	if(!seed)
 		return;
 
 	let temperature = 0.5;

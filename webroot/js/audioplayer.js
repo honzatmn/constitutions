@@ -18,8 +18,8 @@ function playSequenceStr(sequenceStr) {
 		s.replace('1','4');
 		s.replace('2','4');
 		s.replace('3','4');
-		s.replace('6','5');
-		s.replace('7','5');
+		s.replace('6','4');
+		s.replace('7','4');
 
 		sequence[i] = s;
 	}

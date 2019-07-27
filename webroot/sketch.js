@@ -10,9 +10,9 @@ function setup() {
 
 	noCanvas();
 
-	mottoGenerator = new RNNGenerator('models/latin-phrases',"Non", " ",30,"#motto","span", 1, 0.2);
-	preamblesGenerator = new RNNGenerator('models/preambles',null,  ".",100,"#preambles", "li",2, 0.95);
-	articlesGenerator = new RNNGenerator('models/articles-combined-30', null, ".",100,"#articles","li", 3, 0.88);
+	mottoGenerator = new RNNGenerator('models/latin-phrases', "Non", " ", 30, "#motto", "#motto-wrapper","span", 1, 0.2);
+	preamblesGenerator = new RNNGenerator('models/preambles', null, ".", 100, "#preambles", "#preambles-wrapper","li", 2, 0.95);
+	articlesGenerator = new RNNGenerator('models/articles-combined-30', null, ".", 100, "#articles", "#articles-wrapper","li", 3, 0.88);
 
 	rnns.push(mottoGenerator);
 	rnns.push(preamblesGenerator);
@@ -32,7 +32,7 @@ function draw() {
 	else
 		addButton.hide();
 
-	if (!isAnyRunning() && countryname ) {
+	if (!isAnyRunning() && countryname) {
 
 		let currGenerator = null;
 		for (let i = 0; i < rnns.length; i++) {
@@ -44,10 +44,9 @@ function draw() {
 			}
 		}
 
-		if(currGenerator)
-		{
+		if (currGenerator) {
 
-		select('#preambles-title').html("Preambles");
+			select('#constitution').show();
 
 			currGenerator.startParagraphLoop();
 		}
@@ -259,36 +258,45 @@ function erase() {
 	canv.clear();
 	canv.backgroundColor = '#ffffff';
 	coords = [];
+
+	sketchClassNames = [];
+	setCountryTag(null);
 }
 
 function submit() {
 
 	//canv.backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
 	//canv.renderAll();
+	if(sketchClassNames.length < 1)
+		return;
+
 	let newCountryTag = sketchClassNames[0];
+	setCountryTag(newCountryTag);
+}
 
-	if (newCountryTag != countryTag) {
+function setCountryTag(newCountryTag) {
 
-		countryTag = newCountryTag;
-		countryname = getNiceCountryNameWithPrefix(countryTag);
-
-		updateNeighbours();
-
-		select("#preambles").html("");
-		select("#articles").html("");
-
-		document.querySelector("#countryname-text").innerHTML = "Constitution of " + countryname;
-
-		rnns.forEach(e => e.canceled = true);
+	if (newCountryTag === countryTag) {
+		return;
 	}
+	countryTag = newCountryTag;
+	countryname = countryTag ? getNiceCountryNameWithPrefix(countryTag) : null;
 
+	updateNeighbours();
+	document.querySelector("#countryname-text").innerHTML = countryTag ? "Constitution of " + countryname : null;
+
+	rnns.forEach(r=>r.reset());
 }
 
 function updateNeighbours() {
-	let neighboursTitle = select("#neighbours-title");
-	neighboursTitle.html(getNiceGroupName(getNiceCountryName(countryTag)) + ":")
+
 	let neighbours = select("#neighbours");
 	neighbours.html("");
+
+	let neighboursTitle = select("#neighbours-title");
+	let neighboursTitleContent = countryTag ? getNiceGroupName(getNiceCountryName(countryTag)) + ":"  : "";
+	neighboursTitle.html(neighboursTitleContent)
+
 	for (let i = 1; i < sketchClassNames.length; i++) {
 
 		let e = sketchClassNames[i];
@@ -443,7 +451,7 @@ function jsUcfirst(string) {
 }
 
 class RNNGenerator {
-	constructor(model,seed,endChar, minLength, target,elementType, maxcount, temperature) {
+	constructor(model, seed, endChar, minLength, target, targetContainer,elementType, maxcount, temperature) {
 
 		this.rnn = ml5.charRNN(model, () => {
 			console.log("model " + model + " ready");
@@ -451,6 +459,7 @@ class RNNGenerator {
 
 		this.elementType = elementType;
 		this.target = target;
+		this.targetContainer = targetContainer,
 		this.temperature = temperature;
 		this.currentParagraph = null;
 		this.isRunning = false;
@@ -459,10 +468,19 @@ class RNNGenerator {
 		this.endChar = endChar;
 		this.seed = seed;
 		this.minLength = minLength;
+
+		this.reset();
 	}
 
-	isFinished () {
+	isFinished() {
 		return select(this.target).elt.childElementCount >= this.maxCount;
+	}
+
+	reset(){
+
+		select(this.target).html("");
+		select(this.targetContainer).hide();
+		this.canceled = true
 	}
 
 	async startParagraphLoop() {
@@ -479,7 +497,7 @@ class RNNGenerator {
 		this.currentParagraph.html(name)
 		this.currentParagraph.parent(this.target);
 
-		select(this.target).show();
+		select(this.targetContainer).show();
 
 		let seed = this.seed != null ? this.seed : "The country";
 
@@ -489,8 +507,7 @@ class RNNGenerator {
 		let lastChar = next.sample;
 		await this.rnn.feed(lastChar);
 
-		if(this.seed == null)
-		{
+		if (this.seed == null) {
 			let ucCountryName = jsUcfirst(countryname);
 			this.addText(ucCountryName);
 		}
@@ -503,8 +520,7 @@ class RNNGenerator {
 			this.addText(lastChar);
 		}
 
-		if(lastChar === " ")
-		{
+		if (lastChar === " ") {
 			let str = this.currentParagraph.html();
 			str = str.substring(0, str.length - 1);
 			this.currentParagraph.html(str);

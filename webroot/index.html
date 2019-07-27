@@ -22,19 +22,22 @@
 </header>
 <div class="columns">
 
-    <div>
+    <div id="framed">
+        <h3>Draw something here</h3>
         <canvas id="canvas" width="300" height="300" class="canvas"></canvas>
         <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary" onclick='erase()' disabled>Clear
-            </button>
-            <button type="button" class="btn btn-outline-primary" onclick='submit()' disabled>Submit
-            </button>
+            <button type="button" class="button btn-outline-primary" onclick='submit()' disabled>Generate constitution</button>
+            <div class="reset-wrapper">or <button type="button" class="button-reset" onclick='erase()' disabled>Reset everything</button></div>
+
         </div>
-        <div id="neighbours-title"></div>
-        <ul id="neighbours"></ul>
+
+        <div class="info-wrapper">
+            <div id="neighbours-title"></div>
+            <ul id="neighbours"></ul>
+        </div>
     </div>
     <div>
-        <div id="constitution">
+        <div id="constitution" style="display:none">
             <h1 id="countryname-text"></h1>
             <div id="motto-wrapper">
                 <blockquote id="motto"></blockquote>
@@ -49,7 +52,7 @@
             </div>
         </div>
         <div id="info">
-            <h1>Fictional Constitutions</h1>
+            <h1>FictionalConstitutions.org</h1>
             <p>Create your own fictional constitution based on a sketch.</p>
             <p>A project by:<br>
                 <a href="https://www.linkedin.com/in/tomanjan/" target="_blank">Jan Toman</a><br>

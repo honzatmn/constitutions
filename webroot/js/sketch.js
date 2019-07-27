@@ -23,6 +23,8 @@ function setup() {
 
 		articlesGenerator.maxCount++;
 	})
+
+	setCountryTag(null);
 }
 
 function draw() {
@@ -283,7 +285,19 @@ function setCountryTag(newCountryTag) {
 	countryname = countryTag ? getNiceCountryNameWithPrefix(countryTag) : null;
 
 	updateNeighbours();
-	document.querySelector("#countryname-text").innerHTML = countryTag ? "Constitution of " + countryname : null;
+	select("#countryname-text").html( countryTag ? "Constitution of " + countryname : null);
+
+
+	if(countryTag)
+		select("#constitution").show();
+	else
+		select("#constitution").hide();
+
+	if(countryTag)
+		select("#info").hide();
+	else
+		select("#info").show();
+
 
 	rnns.forEach(r=>r.reset());
 }

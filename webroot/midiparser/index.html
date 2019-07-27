@@ -1,0 +1,101 @@
+<html>
+<head>
+    <script src="https://unpkg.com/tone"></script>
+    <script src="../js/audioplayer.js"></script>
+
+    <script type="module">
+		import {MidiParser} from './midi-parser.js'
+
+		function loadMidiAsByteArray(file) {
+
+			return new Promise((resolve, reject) => {
+
+				//console.log("load "+file)
+				var oReq = new XMLHttpRequest();
+				oReq.open("GET", file, true);
+				oReq.responseType = "arraybuffer";
+
+				oReq.onload = function (oEvent) {
+
+
+					var arrayBuffer = oReq.response;
+					// if you want to access the bytes:
+					var byteArray = new Uint8Array(arrayBuffer);
+					resolve(byteArray);
+
+					console.log(file+ " loaded")
+				}
+				oReq.send();
+			});
+		}
+
+		function convertMidiToSequenceString(byteArray) {
+			let obj = MidiParser.parse(byteArray);
+
+			let eventon = [];
+			obj.track.forEach(track => {
+
+				let lastDelta = -999;
+
+				track.event.forEach(e => {
+
+					if(e.deltaTime === lastDelta)
+						return;
+
+					if (e.type === 9) {
+						let char = String.fromCharCode(e.data[0]);
+						eventon.push(char);
+					}
+
+					lastDelta = e.deltaTime;
+				})
+
+			});
+
+			let sequenceStr = eventon.join("");
+			return sequenceStr;
+		}
+
+
+		window.loadAndConvert = async function()
+		{
+			let midi = await loadMidi();
+			window.allStrings = convertMidi(midi);
+			console.log(window.allStrings)
+		}
+
+		window.play = function(){
+
+			playSequenceStr(window.allStrings);
+        }
+
+		async function loadMidi() {
+			let count = 24;
+			let midis = [];
+			for (let i = 0; i < count; i++) {
+				let midi = await loadMidiAsByteArray("data/" + i + ".mid");
+				midis.push(midi);
+			}
+			return midis;
+		}
+
+		function convertMidi (midis) {
+
+			let allStrings = "";
+			midis.forEach(data => {
+
+				let str = convertMidiToSequenceString(data);
+				allStrings += str + "\n";
+			});
+
+            return allStrings;
+		};
+
+
+    </script>
+</head>
+<body>
+<button onclick="loadAndConvert()">LOAD & CONVERT</button>
+<button onclick="play()">PLAY</button>
+</body>
+</html>

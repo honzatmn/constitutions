@@ -75,7 +75,7 @@ li{
 
 }
 canvas{
-  border:3px solid #000000;
+  border:3px solid #123C69;
 }
 
 .header{
@@ -86,7 +86,7 @@ canvas{
 .info-wrapper {
   display: none;
   padding: 16px;
-  background: #BAB2B5;
+  background: #EDC7B7;
   margin-top: 24px;
 }
 
@@ -104,9 +104,12 @@ canvas{
   color: white;
 }
 
-.button:hover {
-  background:#AC3B61;
-  color: black
+
+button:hover {
+  border: 1px solid #0099cc;
+  background-color: #00aacc;
+  color: #ffffff;
+  padding: 5px 10px;
 }
 
 
@@ -120,7 +123,7 @@ canvas{
 }
 
 .button-reset:hover {
-  background: black;
+  background:#AC3B61;
   color: white;
 }
 
@@ -137,6 +140,12 @@ canvas{
 #neighbours-title:before {
   content: 'Country is part of ';
 }
+
+#neighbours:after {
+  top: 50;
+  content: 'Based on the top predictions of what you drew ';
+}
+
 
 #neighbours li {
   margin-bottom: 0;

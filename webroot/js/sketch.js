@@ -55,6 +55,7 @@ function draw() {
 
 			select('#constitution').show();
 			select('.info-wrapper').show();
+			
 
 			currGenerator.startParagraphLoop();
 		}
@@ -547,6 +548,7 @@ class RNNGenerator {
 		select(this.target).html("");
 		select(this.targetContainer).hide();
 		this.canceled = true
+		select('.info-wrapper').hide();
 	}
 
 	async startParagraphLoop() {

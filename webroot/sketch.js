@@ -21,7 +21,7 @@ function setup() {
 	addButton = select("#add");
 	addButton.mousePressed(() => {
 
-		maxParagraphCount++;
+		articlesGenerator.maxCount++;
 	})
 }
 

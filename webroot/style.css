@@ -75,7 +75,7 @@ li{
 
 }
 canvas{
-  border:3px solid #000000;
+  border:3px solid #123C69;
 }
 
 .header{
@@ -86,7 +86,7 @@ canvas{
 .info-wrapper {
   display: none;
   padding: 16px;
-  background: #BAB2B5;
+  background: #EDC7B7;
   margin-top: 24px;
 }
 
@@ -104,11 +104,36 @@ canvas{
   color: white;
 }
 
-.button:hover {
-  background:#AC3B61;
-  color: black
+For the disabled buttons you can use the :disabled pseudo-element. It works for all the elements.
+
+For browsers/devices supporting CSS2 only, you can use the [disabled] selector.
+
+As with the image, don't put an image in the button. Use CSS background-image with background-position and background-repeat. That way, the image dragging will not occur.
+
+Selection problem: here is a link to the specific question:
+
+How to disable text selection highlighting?
+Example for the disabled selector:
+
+button {
+  border: 1px solid #0066cc;
+  background-color: #0099cc;
+  color: #ffffff;
+  padding: 5px 10px;
 }
 
+button:hover {
+  border: 1px solid #0099cc;
+  background-color: #00aacc;
+  color: #ffffff;
+  padding: 5px 10px;
+}
+
+button:disabled,
+button[disabled]{
+  background:white;
+  color: black
+}
 
 .button-reset {
   background: none;
@@ -120,7 +145,7 @@ canvas{
 }
 
 .button-reset:hover {
-  background: black;
+  background:#AC3B61;
   color: white;
 }
 
@@ -137,6 +162,12 @@ canvas{
 #neighbours-title:before {
   content: 'Country is part of ';
 }
+
+#neighbours:after {
+  top: 50;
+  content: 'Based on the top predictions of what you drew ';
+}
+
 
 #neighbours li {
   margin-bottom: 0;

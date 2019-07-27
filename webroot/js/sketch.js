@@ -95,6 +95,20 @@ $(document).ready(() => {
 	canv.freeDrawingBrush.width = 10;
 	canv.renderAll();
 
+
+	//setup listeners
+	canv.on('mouse:up', function (e) {
+
+		getFrame();
+		mousePressed = false
+	});
+	canv.on('mouse:down', function (e) {
+		mousePressed = true
+	});
+	canv.on('mouse:move', function (e) {
+		recordCoor(e)
+	});
+
 	load();
 })
 
@@ -123,19 +137,6 @@ async function load() {
 			let symbol = lst[i]
 			classNames[i] = symbol
 		}
-	});
-
-	//setup listeners
-	canv.on('mouse:up', function (e) {
-
-		getFrame();
-		mousePressed = false
-	});
-	canv.on('mouse:down', function (e) {
-		mousePressed = true
-	});
-	canv.on('mouse:move', function (e) {
-		recordCoor(e)
 	});
 }
 

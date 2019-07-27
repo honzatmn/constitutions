@@ -75,7 +75,7 @@ function isAnyRunning() {
 /*
 variables
 */
-var model;
+var sketchModel;
 var canv;
 var classNames = [];
 var coords = [];
@@ -101,10 +101,11 @@ $(document).ready(() => {
 async function load() {
 
 	//load the model
-	model = await tf.loadLayersModel('models/sketch-detection/model.json')
+	sketchModel = await tf.loadLayersModel('models/sketch-detection/model.json')
 
+	console.log("sketch model loaded");
 	//warm up
-	model.predict(tf.zeros([1, 28, 28, 1]))
+	sketchModel.predict(tf.zeros([1, 28, 28, 1]))
 
 	//allow drawing on the canvas
 	canv.isDrawingMode = 1;
@@ -212,7 +213,7 @@ function getFrame() {
 		});
 
 		//get the prediction
-		const pred = model.predict(preprocessedData).dataSync()
+		const pred = sketchModel.predict(preprocessedData).dataSync()
 
 		//find the top 5 predictions
 		let indices = findIndicesOfMax(pred, 5)

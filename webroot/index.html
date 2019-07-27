@@ -5,20 +5,21 @@
     <title>Constitutions</title>
 
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="p5.min.js"></script>
-    <script src="p5.dom.min.js"></script>
-    <script src="ml5.min.js"></script>
-
-    <script src="fabric.js"></script>
-    <script src="sketch.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/tfjs.min.js"></script>
+    <script src="js/p5.min.js"></script>
+    <script src="js/p5.dom.min.js"></script>
+    <script src="js/ml5.min.js"></script>
+    <script src="js/fabric.js"></script>
+    <script src="js/sketch.js"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 
 <body>
+<header>
+</header>
 <div class="columns">
 
     <div>
@@ -35,11 +36,39 @@
     <div>
         <div id="constitution">
             <h1 id="countryname-text"></h1>
-            <blockquote id="motto" style='display:none;'></blockquote>
-            <h2 id="preambles-title"></h2>
-            <ul id="preambles"></ul>
-            <ol id="articles"></ol>
-            <button id="add">Add Article</button>
+            <div id="motto-wrapper">
+                <blockquote id="motto"></blockquote>
+            </div>
+            <div id="preambles-wrapper">
+                <h2 id="preambles-title">Preambles</h2>
+                <ul id="preambles"></ul>
+            </div>
+            <div id="articles-wrapper">
+                <ol id="articles"></ol>
+                <button id="add">Add Article</button>
+            </div>
+        </div>
+        <div id="info">
+            <h1>Fictional Constitutions</h1>
+            <p>Create your own fictional constitution based on a sketch.</p>
+            <p>A project by:<br>
+                <a href="https://www.linkedin.com/in/tomanjan/" target="_blank">Jan Toman</a><br>
+                <a href="https://mariov.ch/" target="_blank">Mario von Rickenbach</a><br>
+                <a href="https://zybinska.io/" target="_blank">Paulina Zybinska</a>
+            </p>
+            <p>Created with <a href="https://ml5js.org/">ml5.js</a> and <a href="https://p5js.org/">p5.js</a> during
+                the <a href="https://muda.co/machinelearning2019/" target="_blank">Machine Learning Workshop
+                    2019</a> at the <a href="http://muda.co" target="_blank">Museum of Digital Art</a> in Zurich</p>
+
+            <p>Sketch detection based on <a
+                    href="https://github.com/zaidalyafeai/zaidalyafeai.github.io/tree/master/sketcher"
+                    target="_blank">Sketcher</a><br>
+                Text generation model
+                <a href="https://github.com/ml5js/training-lstm" target="_blank">trained</a> with data from <a
+                        href="https://www.constituteproject.org/" target="_blank">Constitute
+                    Project</a>.<br>
+
+                <a href="https://github.com/anyuser/constitutions" target="_blank">Source Code</a></p>
         </div>
 
     </div>

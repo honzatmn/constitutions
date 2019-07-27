@@ -138,12 +138,12 @@ button:hover {
   font-weight: bold;
 }
 #neighbours-title:before {
-  content: 'Country is part of ';
+  content: 'Part of ';
 }
 
-#neighbours:after {
-  top: 50;
-  content: 'Based on the top predictions of what you drew ';
+.info-wrapper:after {
+  content: 'Based on the top predictions of what you drew.';
+  font-size: 0.8rem;
 }
 
 

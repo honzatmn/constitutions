@@ -461,7 +461,7 @@ class RNNGenerator {
 		this.minLength = minLength;
 	}
 
-	isFinished = function () {
+	isFinished () {
 		return select(this.target).elt.childElementCount >= this.maxCount;
 	}
 

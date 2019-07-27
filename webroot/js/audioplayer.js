@@ -3,6 +3,14 @@ let synth;
 
 function playSequenceStr(sequenceStr) {
 
+	Tone.context.resume();
+
+	Tone.Transport.cancel();
+	if(!sequenceStr){
+		return;
+	}
+
+
 	let sequence = sequenceStr.split('');
 	for (let i = 0; i < sequence.length; i++) {
 
@@ -10,11 +18,12 @@ function playSequenceStr(sequenceStr) {
 		s.replace('1','4');
 		s.replace('2','4');
 		s.replace('3','4');
-		s.replace('6','5');
-		s.replace('7','5');
+		s.replace('6','4');
+		s.replace('7','4');
 
 		sequence[i] = s;
 	}
+	//sequence =[' ',' ',' ',' '].concat(sequence);
 	//console.log(sequence)
 	//create a synth and connect it to the master output (your speakers)
 	if (!synth) {
@@ -71,7 +80,6 @@ function playSequenceStr(sequenceStr) {
 		synth = new Tone.DuoSynth(options).toMaster();
 	}
 
-	Tone.context.resume();
 
 	var seq = new Tone.Sequence(function (time, note) {
 

@@ -96,6 +96,20 @@ $(document).ready(() => {
 	canv.freeDrawingBrush.width = 10;
 	canv.renderAll();
 
+
+	//setup listeners
+	canv.on('mouse:up', function (e) {
+
+		getFrame();
+		mousePressed = false
+	});
+	canv.on('mouse:down', function (e) {
+		mousePressed = true
+	});
+	canv.on('mouse:move', function (e) {
+		recordCoor(e)
+	});
+
 	load();
 })
 
@@ -124,19 +138,6 @@ async function load() {
 			let symbol = lst[i]
 			classNames[i] = symbol
 		}
-	});
-
-	//setup listeners
-	canv.on('mouse:up', function (e) {
-
-		getFrame();
-		mousePressed = false
-	});
-	canv.on('mouse:down', function (e) {
-		mousePressed = true
-	});
-	canv.on('mouse:move', function (e) {
-		recordCoor(e)
 	});
 }
 
@@ -297,7 +298,7 @@ function submit() {
 
 }
 
-function setCountryTag(newCountryTag) {
+async function setCountryTag(newCountryTag) {
 
 	if (newCountryTag === countryTag) {
 		return;
@@ -323,7 +324,9 @@ function setCountryTag(newCountryTag) {
 	rnns.forEach(r => r.reset());
 
 
-	generateAnthem(countryname);
+	await generateAnthem(countryTag ? String.fromCharCode(72) : null); // 60 = C4
+
+	playAnthem();
 }
 
 function random_rgba() {
@@ -332,15 +335,16 @@ function random_rgba() {
 }
 
 async function generateAnthem(seed) {
-	anthem = "";
-
-	if (!seed)
+	anthem = null;
+	if(!seed)
 		return;
 
 	let temperature = 0.5;
 	let anthemlength = 40;
 	await anthemRNN.reset();
 	await anthemRNN.feed(seed);
+
+	anthem = "";
 	for (let i = 0; i < anthemlength; i++) {
 
 		let next = await anthemRNN.predict(temperature);
@@ -348,8 +352,6 @@ async function generateAnthem(seed) {
 		anthem += lastChar;
 		await anthemRNN.feed(lastChar);
 	}
-
-	playAnthem();
 }
 
 function playAnthem()

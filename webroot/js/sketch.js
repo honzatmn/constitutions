@@ -330,6 +330,7 @@ function updateNeighbours() {
 		let el = createElement("li", niceName);
 		el.parent(neighbours);
 	}
+	let underTitle = "Based on the top guesses of what you drew";
 }
 
 function getNiceGroupName(name) {

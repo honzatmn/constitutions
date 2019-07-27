@@ -23,20 +23,21 @@
 <div class="columns">
 
     <div id="framed">
-        <h3>Draw some shape into canvas</h3>
+        <h3>Draw something here</h3>
         <canvas id="canvas" width="300" height="300" class="canvas"></canvas>
         <div class="btn-group">
             <button type="button" class="button btn-outline-primary" onclick='submit()' disabled>Generate constitution</button>
             <div class="reset-wrapper">or <button type="button" class="button-reset" onclick='erase()' disabled>Reset everything</button></div>
 
         </div>
+
+        <div class="info-wrapper">
+            <div id="neighbours-title"></div>
+            <ul id="neighbours"></ul>
+        </div>
     </div>
     <div>
         <div id="constitution" style="display:none">
-            <div class="info-wrapper">
-                <div id="neighbours-title"></div>
-                <ul id="neighbours"></ul>
-            </div>
             <h1 id="countryname-text"></h1>
             <div id="motto-wrapper">
                 <blockquote id="motto"></blockquote>

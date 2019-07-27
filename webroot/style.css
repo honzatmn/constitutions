@@ -104,23 +104,6 @@ canvas{
   color: white;
 }
 
-For the disabled buttons you can use the :disabled pseudo-element. It works for all the elements.
-
-For browsers/devices supporting CSS2 only, you can use the [disabled] selector.
-
-As with the image, don't put an image in the button. Use CSS background-image with background-position and background-repeat. That way, the image dragging will not occur.
-
-Selection problem: here is a link to the specific question:
-
-How to disable text selection highlighting?
-Example for the disabled selector:
-
-button {
-  border: 1px solid #0066cc;
-  background-color: #0099cc;
-  color: #ffffff;
-  padding: 5px 10px;
-}
 
 button:hover {
   border: 1px solid #0099cc;
@@ -129,11 +112,6 @@ button:hover {
   padding: 5px 10px;
 }
 
-button:disabled,
-button[disabled]{
-  background:white;
-  color: black
-}
 
 .button-reset {
   background: none;

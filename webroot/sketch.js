@@ -12,7 +12,7 @@ function setup() {
 
 	mottoGenerator = new RNNGenerator('models/latin-phrases',"Non", " ",30,"#motto","span", 1, 0.2);
 	preamblesGenerator = new RNNGenerator('models/preambles',null,  ".",100,"#preambles", "li",2, 0.95);
-	articlesGenerator = new RNNGenerator('models/combined', null, ".",100,"#articles","li", 3, 0.88);
+	articlesGenerator = new RNNGenerator('models/articles-combined-30', null, ".",100,"#articles","li", 3, 0.88);
 
 	rnns.push(mottoGenerator);
 	rnns.push(preamblesGenerator);
@@ -105,7 +105,7 @@ $(document).ready(() => {
 async function load() {
 
 	//load the model
-	model = await tf.loadLayersModel('models/sketch-detection2/model.json')
+	model = await tf.loadLayersModel('models/sketch-detection/model.json')
 
 	//warm up
 	model.predict(tf.zeros([1, 28, 28, 1]))
@@ -117,7 +117,7 @@ async function load() {
 	//load the class names
 
 	await $.ajax({
-		url: 'models/sketch-detection2/class_names.txt',
+		url: 'models/sketch-detection/class_names.txt',
 		dataType: 'text',
 	}).done((data) => {
 

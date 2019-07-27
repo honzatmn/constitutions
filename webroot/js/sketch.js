@@ -275,6 +275,17 @@ function submit() {
 
 	let newCountryTag = sketchClassNames[0];
 	setCountryTag(newCountryTag);
+
+	var c = document.getElementById("canvas");
+	var ctx = c.getContext("2d");
+		var my_gradient=ctx.createLinearGradient(0, 0, 180, Math.floor(Math.random() * 360));
+		ctx.globalCompositeOperation = 'multiply';
+		my_gradient.addColorStop(0,random_rgba());
+		my_gradient.addColorStop(0.5,random_rgba());
+		my_gradient.addColorStop(1,random_rgba());
+		ctx.fillStyle = my_gradient;
+		ctx.fillRect(0, 0, 300, 300); 
+	
 }
 
 function setCountryTag(newCountryTag) {
